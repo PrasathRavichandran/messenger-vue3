@@ -1,11 +1,42 @@
 <template>
-  <h1>Register page</h1>
+  <auth-header-slot
+    content="Already you have an account?"
+    link="/login"
+    value="Log in!"
+  >
+    <form @submit.prevent="signup()">
+      <input-component type="email" placeholder="Email" v-model="email" />
+      <input-component type="text" placeholder="Username" v-model="username" />
+      <input-component
+        type="password"
+        placeholder="Password"
+        v-model="password"
+      />
+      <button-component type="submit">
+        Next!
+      </button-component>
+    </form>
+  </auth-header-slot>
 </template>
 
 <script>
+import ButtonComponent from "../../components/Button.component.vue";
+import InputComponent from "../../components/Input.component.vue";
+import AuthHeaderSlot from "../../slots/AuthHeader.slot.vue";
 export default {
   name: "Register",
+  components: { AuthHeaderSlot, InputComponent, ButtonComponent },
+  data() {
+    return {
+      email: "",
+      username: "",
+      password: "",
+    };
+  },
+  methods: {
+    signup() {
+      console.log(this.email, this.username, this.password);
+    },
+  },
 };
 </script>
-
-<style></style>
