@@ -1,12 +1,9 @@
-import { createStore } from 'vuex'
+import { createLogger, createStore } from "vuex";
+import authstore from "./auth.store";
 
 export default createStore({
-  state: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
   modules: {
-  }
-})
+    authstore,
+  },
+  plugins: [createLogger()],
+});
