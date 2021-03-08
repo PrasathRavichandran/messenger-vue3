@@ -22,9 +22,11 @@
 <script>
 import { ref } from "vue";
 import { useStore } from "vuex";
+
 import ButtonComponent from "../../components/Button.component.vue";
 import InputComponent from "../../components/Input.component.vue";
 import AuthHeaderSlot from "../../slots/AuthHeader.slot.vue";
+
 export default {
   name: "Register",
   components: { AuthHeaderSlot, InputComponent, ButtonComponent },
@@ -36,7 +38,6 @@ export default {
     const password = ref("");
 
     const signup = () => {
-      // console.log(email.value, username.value, password.value);
       store.dispatch("signUp", {
         email: email.value,
         username: username.value,

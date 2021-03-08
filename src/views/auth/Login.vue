@@ -19,6 +19,9 @@
 </template>
 
 <script>
+import { ref } from "vue";
+import { useStore } from "vuex";
+
 import AuthHeaderSlot from "@/slots/AuthHeader.slot.vue";
 import InputComponent from "@/components/Input.component.vue";
 import ButtonComponent from "@/components/Button.component.vue";
@@ -30,16 +33,20 @@ export default {
     InputComponent,
     ButtonComponent,
   },
-  data() {
-    return {
-      email: "",
-      password: "",
+  setup() {
+    const store = useStore();
+
+    const email = ref("");
+    const password = ref("");
+
+    const login = () => {
+      store.dispatch("logIn", {
+        email: email.value,
+        password: password.value,
+      });
     };
-  },
-  methods: {
-    login() {
-      console.log(this.email, this.password);
-    },
+
+    return { email, password, login };
   },
 };
 </script>
