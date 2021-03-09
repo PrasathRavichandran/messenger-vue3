@@ -7,6 +7,8 @@ export default createStore({
   state: {
     isAuthenticated: false,
     user: {},
+    users: [],
+    conversations: []
   },
   mutations: {
     receiveSignup(state, value) {
@@ -17,6 +19,15 @@ export default createStore({
       state.user = {};
       state.isAuthenticated = false;
     },
+    getUserSuccess(state, value) {
+      state.users = value;
+    },
+    getRealTimeConversations(state, value) {
+      state.conversations = value
+    },
+    getRealTimeConversationsFailure(state) {
+      state.conversations = [];
+    }
   },
   getters: {},
   actions: {
@@ -89,5 +100,59 @@ export default createStore({
         })
         .catch((err) => console.error(err));
     },
+
+    // get Real time users
+    async getRealTimeUsers({ commit }, uid) {
+      db.collection('users').onSnapshot((querySnapshot) => {
+        const users = [];
+        querySnapshot.forEach((doc) => {
+          if (doc.data().uid !== uid) {
+            users.push(doc.data());
+          }
+        });
+        // commit the users to state
+        commit('getUserSuccess', users);
+      })
+    },
+
+    // updateMessage
+    async updateMessage() {
+      db.collection("conversations")
+        .add({
+          ...msgObj,
+          isView: false,
+          createdAt: new Date(),
+        }).then(data => {
+          console.log(data);
+        }).then(error => {
+          console.error(error);
+        })
+    },
+
+    // get Real time Conversations
+    async getRealTimeConversations({ commit }, user) {
+      db.collection("conversations")
+        .where("uid_1", "in", [user.uid_1, user.uid_2])
+        .orderBy("createdAt", "asc")
+        .onSnapshot((querySnapshot) => {
+          const conversations = [];
+          querySnapshot.forEach((doc) => {
+            if (
+              (doc.data().uid_1 === user.uid_1 &&
+                doc.data().uid_2 === user.uid_2) ||
+              (doc.data().uid_1 === user.uid_2 && doc.data().uid_2 === user.uid_1)
+            ) {
+              conversations.push(doc.data());
+            }
+            if (conversations.length > 0) {
+              // commit success conversations
+              commit('getRealTimeConversations', conversations);
+            } else {
+              // commit failure conversations (reset the conversation)
+              commit('getRealTimeConversationsFailure');
+            }
+          });
+        });
+    }
   },
 });
