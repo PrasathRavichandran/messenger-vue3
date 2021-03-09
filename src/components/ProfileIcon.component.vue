@@ -1,13 +1,14 @@
 <template>
-  <p>{{username}}</p>
+  <p>{{ username }}</p>
 </template>
 
 <script>
+import { computed } from "vue";
 export default {
   name: "ProfileIconComponent",
   props: ["username"],
   setup(props) {
-    let username = props.username?.split("")[0];
+    const username = computed(() => props.username?.split("")[0]);
 
     return { username };
   },

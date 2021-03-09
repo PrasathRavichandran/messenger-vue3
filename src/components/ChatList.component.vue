@@ -8,22 +8,32 @@
     <div class="chat__list-content">
       <p class="chat__list-title">{{ item.username }}</p>
       <p v-if="item.isOnline">online</p>
-      <p v-else>Last seen &#8226; {{ moment(item.createdAt.toDate()).fromNow() }}</p>
+      <p v-else>{{ chat.timer }}</p>
     </div>
   </section>
 </template>
 
 <script>
+import { reactive, watch } from "vue";
 import moment from "moment";
 import ProfileIconComponent from "./ProfileIcon.component.vue";
+
 export default {
   name: "ChatListComponent",
   props: ["item"],
   components: {
     ProfileIconComponent,
   },
-  setup() {
-    return { moment };
+  setup(props) {
+    const chat = reactive({ timer: null });
+
+    setInterval(() => {
+      chat.timer = `Last seen - ${moment(
+        props.item?.createdAt.toDate()
+      ).fromNow()}`;
+    }, 1000);
+
+    return { chat };
   },
 };
 </script>

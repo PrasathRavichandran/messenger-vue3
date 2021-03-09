@@ -31,7 +31,7 @@ export default {
 
 .chatList {
   flex: 0.25;
-  border-right: 1px solid $lightSilver;
+  border-right: 1px solid $lightGray;
   display: flex;
   flex-direction: column;
   .chatList__top {
@@ -64,10 +64,13 @@ export default {
         height: 35px;
         width: 35px;
         border-radius: 50%;
-        background-color: $lightGray;
+        i {
+          color: $primary;
+          font-size: 1rem;
+        }
       }
       :hover {
-        background-color: $lightSilver;
+        background-color: $lightGray;
       }
     }
   }
