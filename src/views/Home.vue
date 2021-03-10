@@ -36,6 +36,7 @@
             </div>
           </div>
         </div>
+        <div style="margin-top:60px;" ref="bottom" />
       </div>
       <!-- input field for messaging -->
       <div class="chatRoom__input-container">
@@ -58,7 +59,7 @@
 </template>
 
 <script>
-import { onMounted, reactive, ref, watch } from "vue";
+import { nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useStore } from "vuex";
 import moment from "moment";
 
@@ -78,6 +79,8 @@ export default {
     const uid = store.state.user?.uid;
     const chat = reactive({ started: false, userDetails: null, userUid: null });
     const message = ref("");
+
+    const bottom = ref(null);
 
     const onLogout = () => {
       store.dispatch("logOut", {
@@ -119,11 +122,21 @@ export default {
       }
     );
 
+    watch(
+      store.state?.conversations,
+      () => {
+        nextTick(() => {
+          bottom.value?.scrollIntoView({ behavior: "smooth" });
+        });
+      },
+      { deep: true }
+    );
+
     onMounted(() => {
       store.dispatch("getRealTimeUsers", uid);
     });
 
-    return { onLogout, initChat, chat, message, sendMessage, moment };
+    return { onLogout, initChat, chat, message, sendMessage, moment, bottom };
   },
 };
 </script>
@@ -137,7 +150,8 @@ export default {
   height: 100vh;
   .chats {
     flex: 1;
-    overflow: scroll;
+    overflow: auto;
+    max-height: 100%;
     overflow-x: hidden;
     &::-webkit-scrollbar {
       display: block;

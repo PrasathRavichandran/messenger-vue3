@@ -1,4 +1,5 @@
 import { createApp } from "vue";
+import VueChatScroll from "vue-chat-scroll";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -15,6 +16,7 @@ auth.onAuthStateChanged((user) => {
     app = createApp(App)
       .use(store)
       .use(router)
+      .use(VueChatScroll)
       .mount("#app");
   }
   if (user !== null) {
