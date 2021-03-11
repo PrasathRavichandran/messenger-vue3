@@ -40,10 +40,12 @@ export default {
     const password = ref("");
 
     const login = () => {
-      store.dispatch("logIn", {
-        email: email.value,
-        password: password.value,
-      });
+      if (email.value !== "" && password.value !== "") {
+        store.dispatch("logIn", {
+          email: email.value,
+          password: password.value,
+        });
+      }
     };
 
     return { email, password, login };

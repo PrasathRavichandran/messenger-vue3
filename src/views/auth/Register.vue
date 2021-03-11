@@ -38,11 +38,12 @@ export default {
     const password = ref("");
 
     const signup = () => {
-      store.dispatch("signUp", {
-        email: email.value,
-        username: username.value,
-        password: password.value,
-      });
+      if (email.value !== "" && username.value !== "" && password.value !== "")
+        store.dispatch("signUp", {
+          email: email.value,
+          username: username.value,
+          password: password.value,
+        });
     };
 
     return { email, username, password, signup };

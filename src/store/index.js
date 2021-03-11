@@ -6,6 +6,7 @@ export default createStore({
   plugins: process.env.NODE_ENV === "development" ? [createLogger()] : [],
   state: {
     isAuthenticated: false,
+    loading: false,
     user: {},
     users: [],
     conversations: [],
@@ -28,11 +29,15 @@ export default createStore({
     getRealTimeConversationsFailure(state) {
       state.conversations = [];
     },
+    setLoading(state, value) {
+      state.loading = value;
+    },
   },
   getters: {},
   actions: {
     // signup
     async signUp({ commit }, user) {
+      commit("setLoading", true);
       auth
         .createUserWithEmailAndPassword(user.email, user.password)
         .then((data) => {
@@ -51,18 +56,29 @@ export default createStore({
                   })
                   .then(() => {
                     commit("receiveSignup", data.user);
+                    commit("setLoading", false);
                     router.push("/");
                   })
-                  .catch((err) => console.error(err));
+                  .catch((err) => {
+                    console.error(err);
+                    commit("setLoading", false);
+                  });
               })
-              .catch((err) => console.error(err));
+              .catch((err) => {
+                console.error(err);
+                commit("setLoading", false);
+              });
           }
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+          commit("setLoading", false);
+        });
     },
 
     // login
     async logIn({ commit }, user) {
+      commit("setLoading", true);
       auth
         .signInWithEmailAndPassword(user.email, user.password)
         .then((data) => {
@@ -74,11 +90,18 @@ export default createStore({
             })
             .then(() => {
               commit("receiveSignup", data.user);
+              commit("setLoading", false);
               router.push("/");
             })
-            .catch((err) => console.error(err));
+            .catch((err) => {
+              console.error(err);
+              commit("setLoading", false);
+            });
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+          commit("setLoading", false);
+        });
     },
 
     // Logout
@@ -103,7 +126,7 @@ export default createStore({
 
     // get Real time users
     async getRealTimeUsers({ commit }, uid) {
-      db.collection("users").onSnapshot((querySnapshot) => {
+      const unsubscribe = db.collection("users").onSnapshot((querySnapshot) => {
         const users = [];
         querySnapshot.forEach((doc) => {
           if (doc.data().uid !== uid) {
@@ -113,6 +136,7 @@ export default createStore({
         // commit the users to state
         commit("getUserSuccess", users);
       });
+      return unsubscribe;
     },
 
     // updateMessage
@@ -124,9 +148,9 @@ export default createStore({
           createdAt: new Date(),
         })
         .then((data) => {
-          console.log(data);
+          // console.log(data);
         })
-        .then((error) => {
+        .catch((error) => {
           console.log(error);
         });
     },

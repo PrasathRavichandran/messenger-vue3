@@ -1,7 +1,12 @@
 <template>
   <div class="btn-container">
-    <button class="btn btn-primary" :type="type">
-      <slot></slot>
+    <button
+      class="btn btn-primary"
+      :type="type"
+      :disabled="$store.state.loading"
+    >
+      <span v-if="$store.state.loading">Loading...</span>
+      <slot v-else></slot>
     </button>
   </div>
 </template>

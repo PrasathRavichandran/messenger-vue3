@@ -9,11 +9,18 @@
         :item="item"
         @click="initChat(item)"
       />
+      <div v-if="$store.state?.users.length === 0" class="default-chat-list">
+        <h4>No Users added😢</h4>
+      </div>
     </chat-list-slot>
     <chat-room-slot v-if="chat.started" :userDetails="chat.userDetails">
       <!-- display chats -->
       <div class="chats">
-        <div v-for="(item, index) in $store.state?.conversations" :key="index">
+        <div
+          v-for="(item, index) in $store.state?.conversations"
+          :key="index"
+          ref="bottom"
+        >
           <div
             :class="[
               item?.uid_1 === $store.state.user?.uid
@@ -36,7 +43,6 @@
             </div>
           </div>
         </div>
-        <div style="margin-top:60px;" ref="bottom" />
       </div>
       <!-- input field for messaging -->
       <div class="chatRoom__input-container">
@@ -55,11 +61,14 @@
         </form>
       </div>
     </chat-room-slot>
+    <div v-else class="default">
+      <h1>Welcome!!! click Peoples🎉 start Messaging🚀</h1>
+    </div>
   </section>
 </template>
 
 <script>
-import { nextTick, onMounted, reactive, ref, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useStore } from "vuex";
 import moment from "moment";
 
@@ -81,6 +90,8 @@ export default {
     const message = ref("");
 
     const bottom = ref(null);
+
+    let unsubscribe;
 
     const onLogout = () => {
       store.dispatch("logOut", {
@@ -123,17 +134,23 @@ export default {
     );
 
     watch(
-      store.state?.conversations,
-      () => {
+      () => store.state?.conversations,
+      (val, prevVal) => {
         nextTick(() => {
-          bottom.value?.scrollIntoView({ behavior: "smooth" });
+          bottom.value.scrollIntoView({ behavior: "smooth" });
         });
-      },
-      { deep: true }
+      }
     );
 
     onMounted(() => {
-      store.dispatch("getRealTimeUsers", uid);
+      unsubscribe = store
+        .dispatch("getRealTimeUsers", uid)
+        .then((unsubscribe) => unsubscribe)
+        .catch((err) => console.log(err));
+    });
+
+    onUnmounted(() => {
+      unsubscribe.then((f) => f()).catch((err) => console.log(err));
     });
 
     return { onLogout, initChat, chat, message, sendMessage, moment, bottom };
@@ -150,8 +167,7 @@ export default {
   height: 100vh;
   .chats {
     flex: 1;
-    overflow: auto;
-    max-height: 100%;
+    overflow: scroll;
     overflow-x: hidden;
     &::-webkit-scrollbar {
       display: block;
@@ -174,17 +190,17 @@ export default {
       margin-left: 10px;
       margin-right: 10px;
       .message__container {
-        width: fit-content;
         .message__container-top {
           background-color: #f1f2f6;
-          padding: 20px;
+          padding: 8px 12px;
           border-radius: 1.2rem;
           border-bottom-left-radius: 0;
           margin-top: 4px;
           width: fit-content;
+
           .message__text {
             color: $text;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 500;
             line-height: 1.8;
             letter-spacing: 0.03em;
@@ -193,7 +209,7 @@ export default {
         .message__container-bottom {
           margin-top: 5px;
           .message__notification {
-            font-size: 0.8rem;
+            font-size: 0.65rem;
             font-weight: 400;
             color: $lightSilver;
             letter-spacing: 0.03em;
@@ -206,6 +222,7 @@ export default {
           border-radius: 1.2rem;
           border-bottom-right-radius: 0;
           background-color: $secondary;
+          margin-left: auto;
           .message__text {
             color: $white;
           }
@@ -263,6 +280,18 @@ export default {
         }
       }
     }
+  }
+  .default-chat-list {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .default {
+    flex: 0.75;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 </style>
